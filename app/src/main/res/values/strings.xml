@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">LivingRoom</string>
+    <string name="title_activity_home_page">home_page</string>
+    <string name="title_activity_send_to_tv">Send to TV</string>
+</resources>
