@@ -11,14 +11,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
+import pupper_soft.livingroom.interfaces.shareApi;
+import pupper_soft.livingroom.objects.shareObject;
+
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 import android.util.Log;
+
+import java.io.IOException;
 
 public class send_to_tv extends AppCompatActivity {
 
@@ -65,12 +67,33 @@ public class send_to_tv extends AppCompatActivity {
     private class PostLinkTask extends AsyncTask<String, Void, Void>
     {
         private final String TAG = PostLinkTask.class.getSimpleName();
+        private shareApi shareable;
+        private shareObject requestObj = new shareObject();
         protected Void doInBackground(String... params) {
             String serverAddress = params[0];
-            String shareLink = params[1];
-            Log.d(TAG,"WHAT THE ACTUAL SHIT " + serverAddress);
-            Log.d(TAG, "DO A " + shareLink);
+            String urlToShare = params[1];
+            Log.d(TAG,"Computer lives at: " + serverAddress);
+            Log.d(TAG, "Send it: " + urlToShare);
 
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(serverAddress)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            shareable = retrofit.create(shareApi.class);
+
+            requestObj.setUrl(urlToShare);
+
+            Call<shareObject> call = shareable.shareLink(requestObj);
+
+            try
+            {
+                call.execute();
+            }
+            catch (IOException e)
+            {
+                Log.d(TAG, "Well that didn't work...");
+            }
             return null;
         }
     }
@@ -81,7 +104,7 @@ public class send_to_tv extends AppCompatActivity {
         if(textToShare != null)
         {
             texty_box.setText(textToShare);
-            new PostLinkTask().execute("http://192.168.1.100:5000/link", textToShare);
+            new PostLinkTask().execute("http://192.168.1.100:5000", textToShare);
         }
     }
 
